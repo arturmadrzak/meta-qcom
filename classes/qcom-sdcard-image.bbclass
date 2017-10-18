@@ -7,9 +7,11 @@ IMAGE_TYPEDEP_sdimg = "ext4"
 # SD card image name
 SDIMG = "${IMGDEPLOYDIR}/${IMAGE_NAME}.sdimg"
 SDIMG_ROOTFS = "${IMGDEPLOYDIR}/${IMAGE_LINK_NAME}.ext4"
-SDIMG_BOOTIMG = "${DEPLOY_DIR_IMAGE}/boot-dragonboard-410c.img"
+SDIMG_BOOTIMG = "${DEPLOY_DIR_IMAGE}/boot-sd-dragonboard-410c.img"
 
 LT_IMAGES_DIR = "${DEPLOY_DIR_IMAGE}"
+
+# number,start,emd,name,type
 
 create_parted_image() {
     dd if=/dev/zero of=${SDIMG} bs=1M count=4096        
@@ -25,7 +27,6 @@ create_parted_image() {
 }
 
 IMAGE_CMD_sdimg () {
-    printenv > "${IMGDEPLOYDIR}/env.img"
     create_parted_image    
 
     dd if=${LT_IMAGES_DIR}/sbl1.mbn of=${SDIMG} conv=notrunc bs=512 seek=131072
