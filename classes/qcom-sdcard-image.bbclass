@@ -24,7 +24,7 @@ SDIMG_LAYOUT="sbl1,512,,DEA0BA2C-CBDD-4805-B4F9-F428251C3E98,,${LT_IMAGES_DIR}/s
               aboot,1024,,400FFDCD-22E0-47E7-9A23-F16ED9382388,,${LT_IMAGES_DIR}/emmc_appsboot.mbn \
               boot,65536,,20117F86-E985-4357-B9EE-374BC1D8487D,,${SDIMG_BOOTIMG} \
               devinfo,1024,,1B81E7E6-F50D-419B-A739-2AEEF8DA3335,, \
-              rootfs,0,,,,${SDIMG_ROOTFS}"
+              rootfs,,,,,${SDIMG_ROOTFS}"
 
 # expand human readable values
 real_size() {
@@ -56,14 +56,20 @@ fill_the_image() {
             align=`expr $align \* 2`
             start=`expr \( \( $start \+ $align \- 1 \) \/ $align \) \* $align`
         fi
-        local end=`expr $start \+ $size \* 2 \- 1`
+
+        if [ -n "$size" ]; then
+            local end=`expr $start \+ $size \* 2 \- 1`
+        else
+            local end=0
+        fi
 
         # assemble partition creation command
-        sgdisk_cmd="sgdisk -a 1 -n$number:$start:$end -c $number:$name"
+        sgdisk_args="-a 1 -n$number:$start:$end -c $number:$name"
         if [ -n "$type" ]; then
-            sgdisk_cmd="$sgdisk_cmd -t $number:$type"
+            sgdisk_args="$sgdisk_args -t $number:$type"
         fi
-        $sgdisk_cmd
+
+        sgdisk $sgdisk_args ${SDIMG}
 
         # copy source image into sd card partition
         if [ -n "$file" ]; then
